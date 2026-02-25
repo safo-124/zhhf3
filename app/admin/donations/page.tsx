@@ -75,7 +75,7 @@ export default function AdminDonationsPage() {
             <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center mb-3">
               <DollarSign className="w-5 h-5 text-emerald-600" />
             </div>
-            <p className="text-2xl font-bold text-gray-900">${totalAmount.toLocaleString()}</p>
+            <p className="text-2xl font-bold text-gray-900">GH₵{totalAmount.toLocaleString()}</p>
             <p className="text-xs text-gray-500 mt-1">Total Revenue</p>
           </div>
           <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
@@ -89,7 +89,7 @@ export default function AdminDonationsPage() {
             <div className="w-10 h-10 bg-violet-100 rounded-xl flex items-center justify-center mb-3">
               <TrendingUp className="w-5 h-5 text-violet-600" />
             </div>
-            <p className="text-2xl font-bold text-gray-900">${avgAmount}</p>
+            <p className="text-2xl font-bold text-gray-900">GH₵{avgAmount}</p>
             <p className="text-xs text-gray-500 mt-1">Average Amount</p>
           </div>
         </div>
@@ -134,7 +134,7 @@ export default function AdminDonationsPage() {
                         <p className="text-xs text-gray-500">{d.anonymous ? "" : d.user?.email || ""}</p>
                       </td>
                       <td className="px-6 py-4 text-sm font-bold text-emerald-600">
-                        ${d.amount.toLocaleString()}
+                        GH₵{d.amount.toLocaleString()}
                         {d.isMonthly && <span className="ml-1 text-xs text-gray-400">/mo</span>}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600">{d.campaign?.title || "General Fund"}</td>

@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     const donation = await prisma.donation.create({
       data: {
         amount,
-        currency: currency || "USD",
+        currency: currency || "GHS",
         status: "COMPLETED",
         paymentMethod: paymentMethod || "card",
         isMonthly: isMonthly || false,

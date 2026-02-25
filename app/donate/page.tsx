@@ -15,19 +15,19 @@ import {
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import AnimatedCounter from "@/components/ui/AnimatedCounter";
 
-const amounts = [25, 50, 100, 250, 500, 1000];
+const amounts = [50, 100, 200, 500, 1000, 2000];
 
 const impactLevels = [
-  { amount: 25, impact: "Provides school supplies for 1 child for a semester" },
-  { amount: 50, impact: "Feeds a family of 4 for an entire month" },
-  { amount: 100, impact: "Covers medical checkups for 5 community members" },
-  { amount: 250, impact: "Funds clean water access for 10 families" },
-  { amount: 500, impact: "Sponsors a full scholarship for one academic year" },
-  { amount: 1000, impact: "Builds a sustainable garden feeding 20 families" },
+  { amount: 50, impact: "Provides school supplies for 1 child for a semester" },
+  { amount: 100, impact: "Feeds a family of 4 for an entire month" },
+  { amount: 200, impact: "Covers medical checkups for 5 community members" },
+  { amount: 500, impact: "Funds clean water access for 10 families" },
+  { amount: 1000, impact: "Sponsors a full scholarship for one academic year" },
+  { amount: 2000, impact: "Builds a sustainable garden feeding 20 families" },
 ];
 
 export default function DonatePage() {
-  const [selectedAmount, setSelectedAmount] = useState<number | null>(100);
+  const [selectedAmount, setSelectedAmount] = useState<number | null>(200);
   const [customAmount, setCustomAmount] = useState("");
   const [isMonthly, setIsMonthly] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -40,15 +40,31 @@ export default function DonatePage() {
     e.preventDefault();
     if (!currentAmount) return;
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 2000));
-    setSubmitted(true);
-    setLoading(false);
+    try {
+      const res = await fetch("/api/donations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: currentAmount,
+          currency: "GHS",
+          isMonthly,
+          paymentMethod: "mobile_money",
+        }),
+      });
+      if (res.ok) {
+        setSubmitted(true);
+      }
+    } catch (err) {
+      console.error("Donation failed", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="pt-20">
+    <div>
       {/* Hero */}
-      <section className="relative py-20 md:py-28 bg-gradient-to-r from-emerald-700 to-teal-600 overflow-hidden">
+      <section className="relative pt-32 pb-20 md:pt-44 md:pb-32 bg-gradient-to-r from-emerald-700 to-teal-600 overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 right-10 w-72 h-72 border-2 border-white rounded-full" />
           <div className="absolute bottom-10 left-10 w-56 h-56 border-2 border-white rounded-full" />
@@ -64,8 +80,8 @@ export default function DonatePage() {
               Give <span className="text-emerald-300">Hope</span> Today
             </h1>
             <p className="text-lg text-emerald-100 max-w-xl mx-auto">
-              Your donation directly funds programs that change lives. 92 cents
-              of every dollar go to our programs.
+              Your donation directly funds programs that change lives. 92 pesewas
+              of every cedi go to our programs.
             </p>
           </motion.div>
         </div>
@@ -76,9 +92,9 @@ export default function DonatePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <div className="grid grid-cols-3 gap-6 text-center">
             {[
-              { icon: Users, value: 10000, suffix: "+", label: "Donors Worldwide" },
+              { icon: Users, value: 10000, suffix: "+", label: "Donors Nationwide" },
               { icon: TrendingUp, value: 92, suffix: "%", label: "Goes to Programs" },
-              { icon: Gift, value: 2.5, suffix: "M+", label: "Total Raised", decimals: 1 },
+              { icon: Gift, value: 2.5, suffix: "M+", label: "Total Raised (GH\u20B5)", decimals: 1 },
             ].map((s) => (
               <div key={s.label}>
                 <s.icon className="w-6 h-6 text-emerald-500 mx-auto mb-2" />
@@ -113,7 +129,7 @@ export default function DonatePage() {
                       Thank You for Your Generosity!
                     </h2>
                     <p className="text-gray-600 mb-6">
-                      Your ${currentAmount} {isMonthly ? "monthly" : "one-time"}{" "}
+                      Your GH₵{currentAmount} {isMonthly ? "monthly" : "one-time"}{" "}
                       donation will make a real difference.
                     </p>
                     <button
@@ -176,7 +192,7 @@ export default function DonatePage() {
                                   : "bg-gray-50 text-gray-700 border-2 border-gray-200 hover:border-emerald-300"
                               }`}
                             >
-                              ${amt}
+                              GH₵{amt}
                             </motion.button>
                           ))}
                         </div>
@@ -184,7 +200,7 @@ export default function DonatePage() {
                         {/* Custom Amount */}
                         <div className="relative mb-8">
                           <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg font-bold">
-                            $
+                            GH₵
                           </span>
                           <input
                             type="number"
@@ -232,7 +248,7 @@ export default function DonatePage() {
                             ) : (
                               <>
                                 <CreditCard className="w-5 h-5" />
-                                Donate ${currentAmount}{" "}
+                                Donate GH₵{currentAmount}{" "}
                                 {isMonthly ? "/month" : ""}
                                 <ArrowRight className="w-4 h-4" />
                               </>
@@ -260,9 +276,9 @@ export default function DonatePage() {
                   </h3>
                   <div className="space-y-4">
                     {[
-                      { icon: Shield, text: "501(c)(3) certified - tax deductible" },
+                      { icon: Shield, text: "Registered Ghanaian NGO - fully compliant" },
                       { icon: TrendingUp, text: "92% of funds go directly to programs" },
-                      { icon: Heart, text: "Impact 15,000+ families and growing" },
+                      { icon: Heart, text: "Impact 15,000+ families across Ghana" },
                       { icon: CheckCircle, text: "Full transparency in fund allocation" },
                     ].map((item) => (
                       <div key={item.text} className="flex items-start gap-3">
