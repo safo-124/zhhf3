@@ -183,17 +183,6 @@ export default function Navbar() {
                 Login
               </Link>
               <Link
-                href="/admin"
-                className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 flex items-center gap-1.5 ${
-                  isScrolled
-                    ? "text-gray-600 hover:text-emerald-700 hover:bg-emerald-50"
-                    : "text-white/70 hover:text-white"
-                }`}
-              >
-                <Settings className="w-3.5 h-3.5" />
-                Admin
-              </Link>
-              <Link
                 href="/volunteer"
                 className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 ${
                   isScrolled
@@ -326,14 +315,6 @@ export default function Navbar() {
                   >
                     <LogIn className="w-4 h-4" />
                     Member Login
-                  </Link>
-                  <Link
-                    href="/admin"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center justify-center gap-2 w-full px-6 py-3 border border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors"
-                  >
-                    <Settings className="w-4 h-4" />
-                    Admin Panel
                   </Link>
                   <Link
                     href="/volunteer"
