@@ -15,11 +15,13 @@ import {
   Shield,
   Layout,
   Camera,
+  Info,
 } from "lucide-react";
 
 const sidebarLinks = [
   { href: "/admin", label: "Dashboard", icon: BarChart3 },
   { href: "/admin/homepage", label: "Homepage", icon: Layout },
+  { href: "/admin/about", label: "About Page", icon: Info },
   { href: "/admin/gallery", label: "Gallery", icon: Camera },
   { href: "/admin/members", label: "Members", icon: Users },
   { href: "/admin/donations", label: "Donations", icon: DollarSign },

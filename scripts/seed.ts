@@ -365,6 +365,53 @@ async function main() {
   }
   console.log("✅ Created homepage settings");
 
+  // ── About Page Settings ──
+  const aboutSettings = [
+    { key: "about_hero_image", value: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=1600&h=800&fit=crop" },
+    { key: "about_hero_badge", value: "Our Story" },
+    { key: "about_hero_title", value: "About Zion Helping" },
+    { key: "about_hero_highlight", value: "Hand Foundation" },
+    { key: "about_hero_subtitle", value: "For over 15 years, we've been extending hope, building communities, and transforming lives through compassionate action." },
+    { key: "about_mission", value: "To uplift underserved communities by providing essential resources, education, and sustainable programs that foster self-sufficiency and dignity for all." },
+    { key: "about_vision", value: "A world where every individual has access to the basic necessities of life and the opportunity to reach their full potential, regardless of circumstance." },
+    { key: "about_values", value: "Compassion, transparency, integrity, and community-driven impact guide everything we do. We believe in empowering people, not creating dependency." },
+    { key: "about_stat1_value", value: "15000" },
+    { key: "about_stat1_label", value: "Families Helped" },
+    { key: "about_stat2_value", value: "2500" },
+    { key: "about_stat2_label", value: "Volunteers" },
+    { key: "about_stat3_value", value: "45" },
+    { key: "about_stat3_label", value: "Communities" },
+    { key: "about_stat4_value", value: "15" },
+    { key: "about_stat4_label", value: "Years of Service" },
+    { key: "about_timeline", value: JSON.stringify([
+      { year: "2010", title: "Founded", description: "ZHHF was established with a mission to serve communities in need." },
+      { year: "2013", title: "First 1,000 Families", description: "Reached our first milestone by helping 1,000 families across 5 communities." },
+      { year: "2016", title: "Education Program", description: "Launched scholarship and school supply programs for underserved children." },
+      { year: "2019", title: "Healthcare Initiative", description: "Started free medical camps serving 10+ communities annually." },
+      { year: "2022", title: "Clean Water Project", description: "Installed 50+ wells providing clean water to remote villages." },
+      { year: "2025", title: "Global Expansion", description: "Extended operations to 45 communities across multiple regions." },
+    ]) },
+    { key: "about_team", value: JSON.stringify([
+      { name: "Rev. David Mensah", role: "Founder & CEO", avatar: "DM", color: "bg-emerald-500" },
+      { name: "Grace Addo", role: "Operations Director", avatar: "GA", color: "bg-teal-500" },
+      { name: "Samuel Osei", role: "Programs Manager", avatar: "SO", color: "bg-blue-500" },
+      { name: "Esther Nkrumah", role: "Volunteer Coordinator", avatar: "EN", color: "bg-violet-500" },
+      { name: "James Asante", role: "Finance Director", avatar: "JA", color: "bg-amber-500" },
+      { name: "Abena Boateng", role: "Community Outreach", avatar: "AB", color: "bg-rose-500" },
+    ]) },
+    { key: "about_cta_title", value: "Ready to Join Our Mission?" },
+    { key: "about_cta_subtitle", value: "Whether through volunteering, donating, or partnering with us—every action makes a difference." },
+  ];
+
+  for (const s of aboutSettings) {
+    await prisma.homepageSetting.upsert({
+      where: { key: s.key },
+      update: { value: s.value },
+      create: s,
+    });
+  }
+  console.log("✅ Created about page settings");
+
   const heroImages = [
     { url: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=400&h=400&fit=crop", alt: "Children learning", sortOrder: 0 },
     { url: "https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=400&h=400&fit=crop", alt: "Community support", sortOrder: 1 },

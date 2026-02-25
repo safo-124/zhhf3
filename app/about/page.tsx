@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
   Target,
@@ -17,29 +18,101 @@ import ScrollReveal from "@/components/ui/ScrollReveal";
 import AnimatedCounter from "@/components/ui/AnimatedCounter";
 import { StaggerContainer, StaggerItem } from "@/components/ui/StaggerContainer";
 
-const timeline = [
-  { year: "2010", title: "Founded", description: "ZHHF was established with a mission to serve communities in need." },
-  { year: "2013", title: "First 1,000 Families", description: "Reached our first milestone by helping 1,000 families across 5 communities." },
-  { year: "2016", title: "Education Program", description: "Launched scholarship and school supply programs for underserved children." },
-  { year: "2019", title: "Healthcare Initiative", description: "Started free medical camps serving 10+ communities annually." },
-  { year: "2022", title: "Clean Water Project", description: "Installed 50+ wells providing clean water to remote villages." },
-  { year: "2025", title: "Global Expansion", description: "Extended operations to 45 communities across multiple regions." },
-];
+interface AboutData {
+  [key: string]: string;
+}
 
-const team = [
-  { name: "Rev. David Mensah", role: "Founder & CEO", avatar: "DM", color: "bg-emerald-500" },
-  { name: "Grace Addo", role: "Operations Director", avatar: "GA", color: "bg-teal-500" },
-  { name: "Samuel Osei", role: "Programs Manager", avatar: "SO", color: "bg-blue-500" },
-  { name: "Esther Nkrumah", role: "Volunteer Coordinator", avatar: "EN", color: "bg-violet-500" },
-  { name: "James Asante", role: "Finance Director", avatar: "JA", color: "bg-amber-500" },
-  { name: "Abena Boateng", role: "Community Outreach", avatar: "AB", color: "bg-rose-500" },
-];
+const FALLBACK: AboutData = {
+  about_hero_image: "",
+  about_hero_badge: "Our Story",
+  about_hero_title: "About Zion Helping",
+  about_hero_highlight: "Hand Foundation",
+  about_hero_subtitle: "For over 15 years, we've been extending hope, building communities, and transforming lives through compassionate action.",
+  about_mission: "To uplift underserved communities by providing essential resources, education, and sustainable programs that foster self-sufficiency and dignity for all.",
+  about_vision: "A world where every individual has access to the basic necessities of life and the opportunity to reach their full potential, regardless of circumstance.",
+  about_values: "Compassion, transparency, integrity, and community-driven impact guide everything we do. We believe in empowering people, not creating dependency.",
+  about_stat1_value: "15000",
+  about_stat1_label: "Families Helped",
+  about_stat2_value: "2500",
+  about_stat2_label: "Volunteers",
+  about_stat3_value: "45",
+  about_stat3_label: "Communities",
+  about_stat4_value: "15",
+  about_stat4_label: "Years of Service",
+  about_timeline: JSON.stringify([
+    { year: "2010", title: "Founded", description: "ZHHF was established with a mission to serve communities in need." },
+    { year: "2013", title: "First 1,000 Families", description: "Reached our first milestone by helping 1,000 families across 5 communities." },
+    { year: "2016", title: "Education Program", description: "Launched scholarship and school supply programs for underserved children." },
+    { year: "2019", title: "Healthcare Initiative", description: "Started free medical camps serving 10+ communities annually." },
+    { year: "2022", title: "Clean Water Project", description: "Installed 50+ wells providing clean water to remote villages." },
+    { year: "2025", title: "Global Expansion", description: "Extended operations to 45 communities across multiple regions." },
+  ]),
+  about_team: JSON.stringify([
+    { name: "Rev. David Mensah", role: "Founder & CEO", avatar: "DM", color: "bg-emerald-500" },
+    { name: "Grace Addo", role: "Operations Director", avatar: "GA", color: "bg-teal-500" },
+    { name: "Samuel Osei", role: "Programs Manager", avatar: "SO", color: "bg-blue-500" },
+    { name: "Esther Nkrumah", role: "Volunteer Coordinator", avatar: "EN", color: "bg-violet-500" },
+    { name: "James Asante", role: "Finance Director", avatar: "JA", color: "bg-amber-500" },
+    { name: "Abena Boateng", role: "Community Outreach", avatar: "AB", color: "bg-rose-500" },
+  ]),
+  about_cta_title: "Ready to Join Our Mission?",
+  about_cta_subtitle: "Whether through volunteering, donating, or partnering with us—every action makes a difference.",
+};
 
 export default function AboutPage() {
+  const [data, setData] = useState<AboutData>(FALLBACK);
+
+  const fetchAbout = useCallback(async () => {
+    try {
+      const res = await fetch("/api/about");
+      if (res.ok) {
+        const settings: { key: string; value: string }[] = await res.json();
+        const merged = { ...FALLBACK };
+        settings.forEach((s) => {
+          merged[s.key] = s.value;
+        });
+        setData(merged);
+      }
+    } catch {
+      // fallback defaults
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchAbout();
+  }, [fetchAbout]);
+
+  const heroImage = data.about_hero_image || "";
+  const timeline: { year: string; title: string; description: string }[] = (() => {
+    try { return JSON.parse(data.about_timeline); } catch { return []; }
+  })();
+  const team: { name: string; role: string; avatar: string; color: string }[] = (() => {
+    try { return JSON.parse(data.about_team); } catch { return []; }
+  })();
+
+  const stats = [
+    { value: parseInt(data.about_stat1_value) || 0, suffix: "+", label: data.about_stat1_label, icon: Users },
+    { value: parseInt(data.about_stat2_value) || 0, suffix: "+", label: data.about_stat2_label, icon: Heart },
+    { value: parseInt(data.about_stat3_value) || 0, suffix: "", label: data.about_stat3_label, icon: Globe },
+    { value: parseInt(data.about_stat4_value) || 0, suffix: "+", label: data.about_stat4_label, icon: Calendar },
+  ];
+
   return (
-    <div className="pt-20">
+    <div>
       {/* Hero Banner */}
-      <section className="relative py-20 md:py-32 bg-gradient-to-r from-emerald-700 to-teal-600 overflow-hidden">
+      <section className="relative pt-32 pb-20 md:pt-44 md:pb-32 overflow-hidden">
+        {/* Background Image with overlay */}
+        <div className="absolute inset-0">
+          {heroImage ? (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={heroImage} alt="About ZHHF" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-b from-emerald-900/80 via-emerald-800/75 to-teal-900/85" />
+            </>
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-r from-emerald-700 to-teal-600" />
+          )}
+        </div>
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 right-10 w-72 h-72 border-2 border-white rounded-full" />
           <div className="absolute bottom-10 left-10 w-56 h-56 border-2 border-white rounded-full" />
@@ -52,15 +125,14 @@ export default function AboutPage() {
           >
             <span className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 text-emerald-100 text-sm rounded-full border border-white/20 mb-6">
               <Heart className="w-4 h-4" />
-              Our Story
+              {data.about_hero_badge}
             </span>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
-              About Zion Helping{" "}
-              <span className="text-emerald-300">Hand Foundation</span>
+              {data.about_hero_title}{" "}
+              <span className="text-emerald-300">{data.about_hero_highlight}</span>
             </h1>
             <p className="text-lg text-emerald-100 max-w-2xl mx-auto">
-              For over 15 years, we&apos;ve been extending hope, building
-              communities, and transforming lives through compassionate action.
+              {data.about_hero_subtitle}
             </p>
           </motion.div>
         </div>
@@ -74,19 +146,19 @@ export default function AboutPage() {
               {
                 icon: Target,
                 title: "Our Mission",
-                text: "To uplift underserved communities by providing essential resources, education, and sustainable programs that foster self-sufficiency and dignity for all.",
+                text: data.about_mission,
                 gradient: "from-emerald-500 to-teal-500",
               },
               {
                 icon: Eye,
                 title: "Our Vision",
-                text: "A world where every individual has access to the basic necessities of life and the opportunity to reach their full potential, regardless of circumstance.",
+                text: data.about_vision,
                 gradient: "from-teal-500 to-cyan-500",
               },
               {
                 icon: Gem,
                 title: "Our Values",
-                text: "Compassion, transparency, integrity, and community-driven impact guide everything we do. We believe in empowering people, not creating dependency.",
+                text: data.about_values,
                 gradient: "from-cyan-500 to-emerald-500",
               },
             ].map((item) => (
@@ -115,12 +187,7 @@ export default function AboutPage() {
       <section className="py-16 bg-gradient-to-r from-emerald-600 to-teal-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            {[
-              { value: 15000, suffix: "+", label: "Families Helped", icon: Users },
-              { value: 2500, suffix: "+", label: "Volunteers", icon: Heart },
-              { value: 45, suffix: "", label: "Communities", icon: Globe },
-              { value: 15, suffix: "+", label: "Years of Service", icon: Calendar },
-            ].map((stat) => (
+            {stats.map((stat) => (
               <div key={stat.label}>
                 <stat.icon className="w-8 h-8 text-emerald-200 mx-auto mb-3" />
                 <div className="text-3xl md:text-4xl font-bold text-white mb-1">
@@ -226,11 +293,10 @@ export default function AboutPage() {
           <ScrollReveal>
             <Award className="w-12 h-12 text-emerald-200 mx-auto mb-4" />
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Ready to Join Our Mission?
+              {data.about_cta_title}
             </h2>
             <p className="text-emerald-100 text-lg mb-8 max-w-xl mx-auto">
-              Whether through volunteering, donating, or partnering with us—every
-              action makes a difference.
+              {data.about_cta_subtitle}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
