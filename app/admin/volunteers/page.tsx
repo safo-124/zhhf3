@@ -17,6 +17,8 @@ import {
   User,
   Calendar,
   Search,
+  UserPlus,
+  UserCheck,
 } from "lucide-react";
 
 interface VolunteerApp {
@@ -29,6 +31,7 @@ interface VolunteerApp {
   availability: string | null;
   message: string | null;
   status: string;
+  userId: number | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -57,6 +60,7 @@ export default function AdminVolunteerPage() {
   const [selectedApp, setSelectedApp] = useState<VolunteerApp | null>(null);
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
+  const [toast, setToast] = useState<{ message: string; type: "success" | "info" } | null>(null);
 
   const fetchApps = useCallback(async () => {
     setLoading(true);
@@ -74,18 +78,27 @@ export default function AdminVolunteerPage() {
     fetchApps();
   }, [fetchApps]);
 
+  const showToast = (message: string, type: "success" | "info" = "success") => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 5000);
+  };
+
   const updateStatus = async (id: number, status: string) => {
     try {
-      await fetch(`/api/admin/volunteers/${id}`, {
+      const res = await fetch(`/api/admin/volunteers/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
       });
+      const data = await res.json();
       setApps((prev) =>
-        prev.map((a) => (a.id === id ? { ...a, status } : a))
+        prev.map((a) => (a.id === id ? { ...a, status, userId: data.userId ?? a.userId } : a))
       );
       if (selectedApp?.id === id) {
-        setSelectedApp({ ...selectedApp, status });
+        setSelectedApp({ ...selectedApp, status, userId: data.userId ?? selectedApp.userId });
+      }
+      if (data.message) {
+        showToast(data.message, data.accountCreated ? "success" : "info");
       }
     } catch (err) {
       console.error("Failed to update status", err);
@@ -129,6 +142,34 @@ export default function AdminVolunteerPage() {
 
   return (
     <div className="p-6 lg:p-8 max-w-[1600px] mx-auto">
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className={`fixed top-6 right-6 z-[60] max-w-md px-5 py-4 rounded-xl shadow-2xl border ${
+              toast.type === "success"
+                ? "bg-emerald-50 border-emerald-200 text-emerald-800"
+                : "bg-blue-50 border-blue-200 text-blue-800"
+            }`}
+          >
+            <div className="flex items-start gap-3">
+              {toast.type === "success" ? (
+                <UserPlus className="w-5 h-5 text-emerald-600 mt-0.5 shrink-0" />
+              ) : (
+                <UserCheck className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
+              )}
+              <p className="text-sm font-medium">{toast.message}</p>
+              <button onClick={() => setToast(null)} className="ml-2 shrink-0">
+                <X className="w-4 h-4 opacity-50 hover:opacity-100" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
@@ -236,15 +277,23 @@ export default function AdminVolunteerPage() {
                         {app.availability || "—"}
                       </td>
                       <td className="px-6 py-4">
-                        <span
-                          className={`inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full font-semibold ${
-                            statusColors[app.status] ||
-                            "bg-gray-50 text-gray-600"
-                          }`}
-                        >
-                          <StatusIcon className="w-3 h-3" />
-                          {app.status}
-                        </span>
+                        <div className="flex flex-col gap-1">
+                          <span
+                            className={`inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full font-semibold w-fit ${
+                              statusColors[app.status] ||
+                              "bg-gray-50 text-gray-600"
+                            }`}
+                          >
+                            <StatusIcon className="w-3 h-3" />
+                            {app.status}
+                          </span>
+                          {app.userId && app.status.toLowerCase() === "approved" && (
+                            <span className="inline-flex items-center gap-1 text-[10px] text-emerald-600">
+                              <UserCheck className="w-3 h-3" />
+                              Has account
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500">
                         {formatDate(app.createdAt)}
