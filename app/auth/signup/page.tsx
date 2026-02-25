@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, FormEvent } from "react";
-import { motion } from "framer-motion";
+import { useState, FormEvent, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   HandHeart,
   Mail,
@@ -11,26 +12,146 @@ import {
   ArrowRight,
   Sparkles,
   Shield,
-  CheckCircle,
+  AlertCircle,
+  ArrowLeft,
+  KeyRound,
 } from "lucide-react";
 
 export default function SignUpPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
   });
-  const [sent, setSent] = useState(false);
+  const [step, setStep] = useState<"form" | "code">("form");
+  const [code, setCode] = useState(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  useEffect(() => {
+    if (step === "code") {
+      inputRefs.current[0]?.focus();
+    }
+  }, [step]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!formData.email || !formData.name) return;
+    setError("");
     setLoading(true);
-    // TODO: integrate actual signup + magic link auth
-    await new Promise((r) => setTimeout(r, 1500));
-    setSent(true);
-    setLoading(false);
+
+    try {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Failed to create account");
+        setLoading(false);
+        return;
+      }
+
+      setStep("code");
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCodeChange = (index: number, value: string) => {
+    if (!/^\d*$/.test(value)) return;
+    const newCode = [...code];
+    newCode[index] = value.slice(-1);
+    setCode(newCode);
+
+    if (value && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+
+    if (value && index === 5 && newCode.every((c) => c !== "")) {
+      handleVerify(newCode.join(""));
+    }
+  };
+
+  const handleCodeKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === "Backspace" && !code[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleCodePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    const newCode = [...code];
+    for (let i = 0; i < pasted.length; i++) {
+      newCode[i] = pasted[i];
+    }
+    setCode(newCode);
+    if (pasted.length === 6) {
+      handleVerify(pasted);
+    } else {
+      inputRefs.current[pasted.length]?.focus();
+    }
+  };
+
+  const handleVerify = async (codeStr?: string) => {
+    const fullCode = codeStr || code.join("");
+    if (fullCode.length !== 6) return;
+    setError("");
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/auth/verify-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: formData.email, code: fullCode }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Verification failed");
+        setCode(["", "", "", "", "", ""]);
+        inputRefs.current[0]?.focus();
+        setLoading(false);
+        return;
+      }
+
+      router.push("/portal");
+    } catch {
+      setError("Something went wrong. Please try again.");
+      setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    setError("");
+    setCode(["", "", "", "", "", ""]);
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/auth/send-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: formData.email }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Failed to resend code");
+      }
+    } catch {
+      setError("Failed to resend code");
+    } finally {
+      setLoading(false);
+      inputRefs.current[0]?.focus();
+    }
   };
 
   return (
@@ -67,127 +188,161 @@ export default function SignUpPage() {
 
           {/* Body */}
           <div className="px-8 py-8">
-            {sent ? (
+            {error && (
               <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="text-center py-6"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center gap-2 p-3 mb-5 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600"
               >
-                <div className="mx-auto w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mb-4">
-                  <CheckCircle className="w-8 h-8 text-emerald-600" />
-                </div>
-                <h2 className="text-xl font-bold text-gray-900 mb-2">
-                  Account Created!
-                </h2>
-                <p className="text-gray-600 text-sm mb-6">
-                  We sent a sign-in link to{" "}
-                  <strong className="text-emerald-700">{formData.email}</strong>.
-                  Check your inbox to get started.
-                </p>
-                <Link
-                  href="/auth/login"
-                  className="text-sm text-emerald-600 font-medium hover:text-emerald-700"
-                >
-                  Go to Login
-                </Link>
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                {error}
               </motion.div>
-            ) : (
-              <>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label
-                      htmlFor="name"
-                      className="block text-sm font-medium text-gray-700 mb-1.5"
-                    >
-                      Full Name
-                    </label>
-                    <div className="relative">
-                      <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <input
-                        id="name"
-                        type="text"
-                        value={formData.name}
-                        onChange={(e) =>
-                          setFormData({ ...formData, name: e.target.value })
-                        }
-                        placeholder="John Doe"
-                        required
-                        className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 transition-all"
-                      />
+            )}
+
+            <AnimatePresence mode="wait">
+              {step === "form" ? (
+                <motion.div
+                  key="form"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                >
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                      <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1.5">
+                        Full Name
+                      </label>
+                      <div className="relative">
+                        <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <input
+                          id="name" type="text" value={formData.name}
+                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                          placeholder="Kofi Mensah" required
+                          className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 transition-all"
+                        />
+                      </div>
                     </div>
+
+                    <div>
+                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1.5">
+                        Email Address
+                      </label>
+                      <div className="relative">
+                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <input
+                          id="email" type="email" value={formData.email}
+                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                          placeholder="you@example.com" required
+                          className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1.5">
+                        Phone Number <span className="text-gray-400">(optional)</span>
+                      </label>
+                      <div className="relative">
+                        <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <input
+                          id="phone" type="tel" value={formData.phone}
+                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                          placeholder="+233 24 000 0000"
+                          className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    <motion.button
+                      whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}
+                      type="submit" disabled={loading}
+                      className="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-semibold rounded-xl shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all flex items-center justify-center gap-2 disabled:opacity-60 mt-2"
+                    >
+                      {loading ? (
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      ) : (
+                        <>
+                          <Sparkles className="w-4 h-4" />
+                          Create Account
+                          <ArrowRight className="w-4 h-4" />
+                        </>
+                      )}
+                    </motion.button>
+                  </form>
+
+                  <div className="mt-5 flex items-center gap-2 justify-center text-xs text-gray-500">
+                    <Shield className="w-3.5 h-3.5 text-emerald-500" />
+                    <span>Your information is secure with us</span>
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="code"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                >
+                  <div className="text-center mb-6">
+                    <div className="mx-auto w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center mb-4">
+                      <KeyRound className="w-7 h-7 text-emerald-600" />
+                    </div>
+                    <h2 className="text-lg font-bold text-gray-900 mb-1">
+                      Verify Your Email
+                    </h2>
+                    <p className="text-sm text-gray-500">
+                      We sent a 6-digit code to{" "}
+                      <strong className="text-emerald-700">{formData.email}</strong>
+                    </p>
                   </div>
 
-                  <div>
-                    <label
-                      htmlFor="email"
-                      className="block text-sm font-medium text-gray-700 mb-1.5"
-                    >
-                      Email Address
-                    </label>
-                    <div className="relative">
-                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <div className="flex gap-2 justify-center mb-6" onPaste={handleCodePaste}>
+                    {code.map((digit, i) => (
                       <input
-                        id="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) =>
-                          setFormData({ ...formData, email: e.target.value })
-                        }
-                        placeholder="you@example.com"
-                        required
-                        className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 transition-all"
+                        key={i}
+                        ref={(el) => { inputRefs.current[i] = el; }}
+                        type="text" inputMode="numeric" maxLength={1}
+                        value={digit}
+                        onChange={(e) => handleCodeChange(i, e.target.value)}
+                        onKeyDown={(e) => handleCodeKeyDown(i, e)}
+                        className="w-12 h-14 text-center text-xl font-bold bg-gray-50 border-2 border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 transition-all"
                       />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="phone"
-                      className="block text-sm font-medium text-gray-700 mb-1.5"
-                    >
-                      Phone Number{" "}
-                      <span className="text-gray-400">(optional)</span>
-                    </label>
-                    <div className="relative">
-                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <input
-                        id="phone"
-                        type="tel"
-                        value={formData.phone}
-                        onChange={(e) =>
-                          setFormData({ ...formData, phone: e.target.value })
-                        }
-                        placeholder="+1 (555) 000-0000"
-                        className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 transition-all"
-                      />
-                    </div>
+                    ))}
                   </div>
 
                   <motion.button
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.99 }}
-                    type="submit"
-                    disabled={loading}
-                    className="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-semibold rounded-xl shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all flex items-center justify-center gap-2 disabled:opacity-60 mt-2"
+                    whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}
+                    onClick={() => handleVerify()}
+                    disabled={loading || code.some((c) => !c)}
+                    className="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-semibold rounded-xl shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all flex items-center justify-center gap-2 disabled:opacity-60"
                   >
                     {loading ? (
                       <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     ) : (
                       <>
-                        <Sparkles className="w-4 h-4" />
-                        Create Account
+                        Verify & Sign In
                         <ArrowRight className="w-4 h-4" />
                       </>
                     )}
                   </motion.button>
-                </form>
 
-                <div className="mt-5 flex items-center gap-2 justify-center text-xs text-gray-500">
-                  <Shield className="w-3.5 h-3.5 text-emerald-500" />
-                  <span>Your information is secure with us</span>
-                </div>
-              </>
-            )}
+                  <div className="mt-5 flex items-center justify-between">
+                    <button
+                      onClick={() => { setStep("form"); setCode(["", "", "", "", "", ""]); setError(""); }}
+                      className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1"
+                    >
+                      <ArrowLeft className="w-3.5 h-3.5" />
+                      Go back
+                    </button>
+                    <button
+                      onClick={handleResend} disabled={loading}
+                      className="text-sm text-emerald-600 font-medium hover:text-emerald-700 disabled:opacity-50"
+                    >
+                      Resend code
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
 

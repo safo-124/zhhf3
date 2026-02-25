@@ -104,8 +104,19 @@ export default function AdminSidebar() {
             <Home className="w-4 h-4" />
           </div>
           <span className="text-sm">Back to Site</span>
-          <LogOut className="w-3.5 h-3.5 ml-auto text-gray-400" />
         </Link>
+        <button
+          onClick={async () => {
+            await fetch("/api/auth/logout", { method: "POST" });
+            window.location.href = "/auth/admin";
+          }}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-500 hover:bg-red-50 hover:text-red-600 transition-all group"
+        >
+          <div className="w-8 h-8 rounded-lg bg-gray-50 group-hover:bg-red-100 flex items-center justify-center transition-colors">
+            <LogOut className="w-4 h-4" />
+          </div>
+          <span className="text-sm">Sign Out</span>
+        </button>
       </div>
     </aside>
   );
