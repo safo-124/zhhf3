@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   HandHeart,
@@ -30,6 +30,7 @@ const roles = [
 export default function VolunteerPage() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -55,6 +56,15 @@ export default function VolunteerPage() {
     setLoading(false);
   };
 
+  useEffect(() => {
+    fetch("/api/homepage")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.settings?.logo) setLogoUrl(d.settings.logo);
+      })
+      .catch(() => {});
+  }, []);
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
@@ -75,7 +85,12 @@ export default function VolunteerPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <HandHeart className="w-12 h-12 text-emerald-200 mx-auto mb-4" />
+            {logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={logoUrl} alt="ZHHF Logo" className="w-16 h-16 md:w-20 md:h-20 rounded-xl object-contain mx-auto mb-4 shadow-lg" />
+            ) : (
+              <HandHeart className="w-12 h-12 text-emerald-200 mx-auto mb-4" />
+            )}
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
               Become a <span className="text-emerald-300">Volunteer</span>
             </h1>
