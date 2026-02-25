@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, useEffect, useCallback, FormEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Mail,
@@ -12,47 +12,35 @@ import {
   MessageSquare,
   Globe,
   Heart,
+  Loader2,
 } from "lucide-react";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import { StaggerContainer, StaggerItem } from "@/components/ui/StaggerContainer";
 
-const contactInfo = [
-  {
-    icon: MapPin,
-    title: "Visit Us",
-    lines: ["P.O. Box 123, Accra", "Greater Accra Region, Ghana"],
-    color: "bg-emerald-100 text-emerald-600",
-  },
-  {
-    icon: Phone,
-    title: "Call Us",
-    lines: ["+233 20 123 4567", "+233 30 456 7890"],
-    color: "bg-teal-100 text-teal-600",
-  },
-  {
-    icon: Mail,
-    title: "Email Us",
-    lines: ["info@zhhf.org", "support@zhhf.org"],
-    color: "bg-blue-100 text-blue-600",
-  },
-  {
-    icon: Clock,
-    title: "Office Hours",
-    lines: ["Mon - Fri: 8:00 AM - 5:00 PM", "Sat: 9:00 AM - 1:00 PM"],
-    color: "bg-violet-100 text-violet-600",
-  },
-];
-
-const socials = [
-  { name: "Facebook", href: "#", icon: Globe },
-  { name: "Twitter / X", href: "#", icon: Globe },
-  { name: "Instagram", href: "#", icon: Globe },
-  { name: "LinkedIn", href: "#", icon: Globe },
-];
+interface ContactSettings {
+  contact_address_line1?: string;
+  contact_address_line2?: string;
+  contact_phone1?: string;
+  contact_phone2?: string;
+  contact_email1?: string;
+  contact_email2?: string;
+  contact_hours_line1?: string;
+  contact_hours_line2?: string;
+  contact_facebook?: string;
+  contact_twitter?: string;
+  contact_instagram?: string;
+  contact_linkedin?: string;
+  contact_map_label?: string;
+  contact_map_sublabel?: string;
+  contact_hq_name?: string;
+  contact_hq_address?: string;
+}
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [settingsLoading, setSettingsLoading] = useState(true);
+  const [settings, setSettings] = useState<ContactSettings>({});
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -60,10 +48,33 @@ export default function ContactPage() {
     message: "",
   });
 
+  const fetchSettings = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/contact");
+      if (res.ok) setSettings(await res.json());
+    } catch {
+      // use defaults
+    } finally {
+      setSettingsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchSettings();
+  }, [fetchSettings]);
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1500));
+    try {
+      await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+    } catch {
+      // still show success
+    }
     setSubmitted(true);
     setLoading(false);
   };
@@ -74,10 +85,59 @@ export default function ContactPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const s = (key: keyof ContactSettings, fallback: string) =>
+    settings[key] || fallback;
+
+  const contactInfo = [
+    {
+      icon: MapPin,
+      title: "Visit Us",
+      lines: [
+        s("contact_address_line1", "P.O. Box 123, Accra"),
+        s("contact_address_line2", "Greater Accra Region, Ghana"),
+      ],
+      color: "bg-emerald-100 text-emerald-600",
+    },
+    {
+      icon: Phone,
+      title: "Call Us",
+      lines: [
+        s("contact_phone1", "+233 20 123 4567"),
+        s("contact_phone2", "+233 30 456 7890"),
+      ],
+      color: "bg-teal-100 text-teal-600",
+    },
+    {
+      icon: Mail,
+      title: "Email Us",
+      lines: [
+        s("contact_email1", "info@zhhf.org"),
+        s("contact_email2", "support@zhhf.org"),
+      ],
+      color: "bg-blue-100 text-blue-600",
+    },
+    {
+      icon: Clock,
+      title: "Office Hours",
+      lines: [
+        s("contact_hours_line1", "Mon - Fri: 8:00 AM - 5:00 PM"),
+        s("contact_hours_line2", "Sat: 9:00 AM - 1:00 PM"),
+      ],
+      color: "bg-violet-100 text-violet-600",
+    },
+  ];
+
+  const socials = [
+    { name: "Facebook", href: s("contact_facebook", "#") },
+    { name: "X", href: s("contact_twitter", "#") },
+    { name: "Instagram", href: s("contact_instagram", "#") },
+    { name: "LinkedIn", href: s("contact_linkedin", "#") },
+  ];
+
   return (
-    <div className="pt-20">
+    <div>
       {/* Hero */}
-      <section className="relative py-20 md:py-28 bg-gradient-to-r from-emerald-700 to-teal-600 overflow-hidden">
+      <section className="relative pt-32 pb-20 md:pt-44 md:pb-32 bg-gradient-to-r from-emerald-700 to-teal-600 overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 right-10 w-72 h-72 border-2 border-white rounded-full" />
           <div className="absolute bottom-10 left-10 w-56 h-56 border-2 border-white rounded-full" />
@@ -276,19 +336,19 @@ export default function ContactPage() {
                     <div className="text-center">
                       <MapPin className="w-10 h-10 text-emerald-600 mx-auto mb-2" />
                       <p className="text-emerald-800 font-semibold text-sm">
-                        Accra, Ghana
+                        {s("contact_map_label", "Accra, Ghana")}
                       </p>
                       <p className="text-emerald-600 text-xs">
-                        Greater Accra Region
+                        {s("contact_map_sublabel", "Greater Accra Region")}
                       </p>
                     </div>
                   </div>
                   <div className="p-5">
                     <h3 className="font-bold text-gray-900 mb-1">
-                      ZHHF Headquarters
+                      {s("contact_hq_name", "ZHHF Headquarters")}
                     </h3>
                     <p className="text-sm text-gray-500">
-                      P.O. Box 123, Accra, Ghana
+                      {s("contact_hq_address", "P.O. Box 123, Accra, Ghana")}
                     </p>
                   </div>
                 </div>

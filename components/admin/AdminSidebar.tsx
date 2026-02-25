@@ -17,6 +17,7 @@ import {
   Camera,
   Info,
   Layers,
+  Phone,
 } from "lucide-react";
 
 const sidebarLinks = [
@@ -30,6 +31,7 @@ const sidebarLinks = [
   { href: "/admin/events", label: "Events", icon: Calendar },
   { href: "/admin/content", label: "Blog Posts", icon: FileText },
   { href: "/admin/testimonials", label: "Testimonials", icon: MessageSquare },
+  { href: "/admin/contact", label: "Contact", icon: Phone },
   { href: "/admin/campaigns", label: "Campaigns", icon: Target },
 ];
 
