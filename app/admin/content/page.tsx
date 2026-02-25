@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import {
   FileText,
   Plus,
@@ -11,7 +12,9 @@ import {
   Loader2,
   X,
   RefreshCw,
+  ImageIcon,
 } from "lucide-react";
+import ImageUpload from "@/components/admin/ImageUpload";
 
 
 interface BlogPost {
@@ -24,8 +27,8 @@ interface BlogPost {
   published: boolean;
   views: number;
   image: string | null;
+  author: string | null;
   createdAt: string;
-  author: { name: string | null; email: string } | null;
 }
 
 interface PostForm {
@@ -48,6 +51,7 @@ export default function AdminContentPage() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState<PostForm>(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [modalTab, setModalTab] = useState<"details" | "image">("details");
 
   const fetchPosts = useCallback(async () => {
     setLoading(true);
@@ -66,6 +70,7 @@ export default function AdminContentPage() {
   const openCreate = () => {
     setEditingId(null);
     setForm(emptyForm);
+    setModalTab("details");
     setShowModal(true);
   };
 
@@ -79,6 +84,7 @@ export default function AdminContentPage() {
       published: p.published,
       image: p.image || "",
     });
+    setModalTab("details");
     setShowModal(true);
   };
 
@@ -162,12 +168,19 @@ export default function AdminContentPage() {
                   {posts.map((post) => (
                     <tr key={post.id} className="border-b border-gray-50 hover:bg-gray-50/50">
                       <td className="px-6 py-4">
-                        <p className="text-sm font-semibold text-gray-900 max-w-xs truncate">{post.title}</p>
+                        <div className="flex items-center gap-3">
+                          {post.image && (
+                            <div className="w-10 h-10 rounded-lg overflow-hidden relative flex-shrink-0">
+                              <Image src={post.image} alt="" fill className="object-cover" />
+                            </div>
+                          )}
+                          <p className="text-sm font-semibold text-gray-900 max-w-xs truncate">{post.title}</p>
+                        </div>
                       </td>
                       <td className="px-6 py-4">
                         <span className="text-xs px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 font-semibold">{post.category}</span>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">{post.author?.name || "Unknown"}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600">{post.author || "Admin"}</td>
                       <td className="px-6 py-4 text-sm text-gray-600">{post.views.toLocaleString()}</td>
                       <td className="px-6 py-4">
                         <span className={`text-xs px-2.5 py-1 rounded-full font-semibold ${
@@ -212,54 +225,83 @@ export default function AdminContentPage() {
               onClick={() => setShowModal(false)}>
               <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
                 onClick={(e) => e.stopPropagation()}
-                className="bg-white rounded-2xl p-8 shadow-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto">
-                <div className="flex items-center justify-between mb-6">
+                className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col">
+                {/* Header */}
+                <div className="flex items-center justify-between px-8 pt-8 pb-4">
                   <h2 className="text-xl font-bold text-gray-900">{editingId ? "Edit Post" : "New Blog Post"}</h2>
                   <button onClick={() => setShowModal(false)}><X className="w-5 h-5 text-gray-400" /></button>
                 </div>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                    <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })}
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-emerald-500" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                    <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-emerald-500">
-                      <option>Stories</option><option>Updates</option><option>Education</option>
-                      <option>Health</option><option>Community</option><option>Impact</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Excerpt</label>
-                    <input value={form.excerpt} onChange={(e) => setForm({ ...form, excerpt: e.target.value })}
-                      placeholder="Brief summary..."
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-emerald-500" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
-                    <textarea rows={8} value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })}
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-emerald-500 resize-none" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
-                    <input value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })}
-                      placeholder="https://..."
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-emerald-500" />
-                  </div>
-                  <div className="flex gap-3 pt-4">
-                    <button onClick={() => setShowModal(false)}
-                      className="flex-1 py-3 border border-gray-200 rounded-xl text-gray-700 font-semibold hover:bg-gray-50">Cancel</button>
-                    <button onClick={() => handleSave(false)} disabled={saving}
-                      className="flex-1 py-3 border border-gray-200 rounded-xl text-gray-700 font-semibold hover:bg-gray-50 disabled:opacity-50">
-                      Save Draft
+
+                {/* Tabs */}
+                <div className="flex gap-1 px-8 mb-4">
+                  {(["details", "image"] as const).map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setModalTab(tab)}
+                      className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
+                        modalTab === tab
+                          ? "bg-emerald-50 text-emerald-700"
+                          : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                      }`}
+                    >
+                      {tab === "details" ? "Details" : "Image"}
                     </button>
-                    <button onClick={() => handleSave(true)} disabled={saving}
-                      className="flex-1 py-3 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 disabled:opacity-50">
-                      {saving ? "Saving..." : "Publish"}
-                    </button>
-                  </div>
+                  ))}
+                </div>
+
+                {/* Tab Content */}
+                <div className="px-8 pb-4 overflow-y-auto flex-1">
+                  {modalTab === "details" ? (
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                        <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })}
+                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-emerald-500" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                        <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}
+                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-emerald-500">
+                          <option>Stories</option><option>Updates</option><option>Education</option>
+                          <option>Health</option><option>Community</option><option>Impact</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Excerpt</label>
+                        <input value={form.excerpt} onChange={(e) => setForm({ ...form, excerpt: e.target.value })}
+                          placeholder="Brief summary..."
+                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-emerald-500" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
+                        <textarea rows={10} value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })}
+                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-emerald-500 resize-none" />
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <ImageUpload
+                        value={form.image}
+                        onChange={(url) => setForm({ ...form, image: url })}
+                        label="Blog Post Cover Image"
+                        hint="Recommended: 1200×630px. This image becomes the hero section when viewing the blog post."
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Footer */}
+                <div className="flex gap-3 px-8 py-5 border-t border-gray-100 bg-gray-50">
+                  <button onClick={() => setShowModal(false)}
+                    className="flex-1 py-3 border border-gray-200 rounded-xl text-gray-700 font-semibold hover:bg-white">Cancel</button>
+                  <button onClick={() => handleSave(false)} disabled={saving}
+                    className="flex-1 py-3 border border-gray-200 rounded-xl text-gray-700 font-semibold hover:bg-white disabled:opacity-50">
+                    Save Draft
+                  </button>
+                  <button onClick={() => handleSave(true)} disabled={saving}
+                    className="flex-1 py-3 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 disabled:opacity-50">
+                    {saving ? "Saving..." : "Publish"}
+                  </button>
                 </div>
               </motion.div>
             </motion.div>

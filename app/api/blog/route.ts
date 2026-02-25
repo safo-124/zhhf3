@@ -20,7 +20,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { title, slug, excerpt, content, category, authorId, published } = body;
+    const { title, slug, excerpt, content, category, author, published, image } = body;
 
     if (!title || !content) {
       return NextResponse.json(
@@ -29,15 +29,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const generatedSlug = slug || title
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "")
+      .substring(0, 100);
+
     const post = await prisma.blogPost.create({
       data: {
         title,
-        slug: slug || title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
+        slug: `${generatedSlug}-${Date.now()}`,
         excerpt: excerpt || content.substring(0, 160),
         content,
         category: category || "Updates",
         published: published ?? false,
-        ...(authorId && { author: { connect: { id: authorId } } }),
+        author: author || null,
+        image: image || null,
       },
     });
 
