@@ -18,6 +18,7 @@ import {
   Info,
   Layers,
   Phone,
+  HandHeart,
 } from "lucide-react";
 
 const sidebarLinks = [
@@ -32,6 +33,7 @@ const sidebarLinks = [
   { href: "/admin/content", label: "Blog Posts", icon: FileText },
   { href: "/admin/testimonials", label: "Testimonials", icon: MessageSquare },
   { href: "/admin/contact", label: "Contact", icon: Phone },
+  { href: "/admin/volunteers", label: "Volunteers", icon: HandHeart },
   { href: "/admin/campaigns", label: "Campaigns", icon: Target },
 ];
 

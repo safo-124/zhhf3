@@ -42,7 +42,15 @@ export default function VolunteerPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1500));
+    try {
+      await fetch("/api/volunteer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+    } catch {
+      // still show success
+    }
     setSubmitted(true);
     setLoading(false);
   };
@@ -54,9 +62,9 @@ export default function VolunteerPage() {
   };
 
   return (
-    <div className="pt-20">
+    <div>
       {/* Hero */}
-      <section className="relative py-20 md:py-28 bg-gradient-to-r from-emerald-700 to-teal-600 overflow-hidden">
+      <section className="relative pt-32 pb-20 md:pt-44 md:pb-32 bg-gradient-to-r from-emerald-700 to-teal-600 overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 right-10 w-72 h-72 border-2 border-white rounded-full" />
           <div className="absolute bottom-10 left-10 w-56 h-56 border-2 border-white rounded-full" />
