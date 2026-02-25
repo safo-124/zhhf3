@@ -449,6 +449,93 @@ async function main() {
   }
   console.log("✅ Created 15 gallery images");
 
+  // ── Programs ──
+  const programsData = [
+    {
+      title: "Education",
+      slug: "education",
+      shortDescription: "Providing scholarships, school supplies, and learning resources to underprivileged children to ensure they get quality education.",
+      longDescription: "Our Education program is designed to break the cycle of poverty through accessible, quality learning opportunities. We provide full scholarships, school supplies, uniforms, and learning materials to children in underserved communities.\n\nBeyond material support, we run after-school tutoring programs, mentorship initiatives, and digital literacy workshops. Our education centers are equipped with computers and internet access, giving students the tools they need to succeed in a modern world.\n\nWe also work closely with local schools to improve infrastructure, train teachers, and develop curriculum that meets international standards while respecting local culture and context.",
+      image: "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=800&h=600&fit=crop",
+      icon: "GraduationCap",
+      color: "from-emerald-500 to-green-600",
+      emoji: "🎓",
+      features: JSON.stringify(["Scholarships for 500+ students", "After-school tutoring", "Digital literacy labs", "Teacher training programs", "School infrastructure upgrades"]),
+      impacts: JSON.stringify([{ label: "Students Supported", value: "2,500+" }, { label: "Schools Partnered", value: "45" }, { label: "Graduation Rate", value: "94%" }, { label: "Scholarships Awarded", value: "500+" }]),
+      sortOrder: 0,
+    },
+    {
+      title: "Healthcare",
+      slug: "healthcare",
+      shortDescription: "Free medical camps, health education, and access to essential medicines for remote and underserved communities.",
+      longDescription: "Our Healthcare initiative brings medical services directly to communities that lack access to basic healthcare. Through mobile clinics, free medical camps, and partnerships with hospitals, we ensure that no one is denied care because of their location or financial situation.\n\nWe focus on preventive healthcare through community health education, maternal and child health programs, and vaccination drives. Our trained community health workers provide ongoing support and health monitoring in remote areas.\n\nWe also maintain a pharmacy program that provides essential medicines at no cost, and we coordinate specialist care referrals for complex medical conditions.",
+      image: "https://images.unsplash.com/photo-1593113598332-cd288d649433?w=800&h=600&fit=crop",
+      icon: "HeartPulse",
+      color: "from-rose-500 to-red-600",
+      emoji: "🏥",
+      features: JSON.stringify(["Free medical camps monthly", "Mobile clinic outreach", "Maternal & child health", "Community health workers", "Essential medicines program"]),
+      impacts: JSON.stringify([{ label: "Patients Treated", value: "15,000+" }, { label: "Medical Camps", value: "120+" }, { label: "Health Workers", value: "85" }, { label: "Communities Served", value: "30+" }]),
+      sortOrder: 1,
+    },
+    {
+      title: "Housing",
+      slug: "housing",
+      shortDescription: "Building safe, sustainable homes for families in need, providing shelter and a foundation for a better future.",
+      longDescription: "Everyone deserves a safe place to call home. Our Housing program constructs durable, affordable homes for families living in substandard conditions. We use sustainable building practices and local materials to create homes that are both environmentally friendly and culturally appropriate.\n\nOur approach goes beyond just building houses. We involve community members in the construction process, providing job training and skills development. We also ensure homes have access to clean water, sanitation, and electricity.\n\nTo date, we've built hundreds of homes, transforming entire neighborhoods and creating stable environments where families can thrive.",
+      image: "https://images.unsplash.com/photo-1560252829-804f1aedf1be?w=800&h=600&fit=crop",
+      icon: "Home",
+      color: "from-amber-500 to-orange-600",
+      emoji: "🏠",
+      features: JSON.stringify(["Sustainable home construction", "Community-driven building", "Clean water & sanitation", "Skills training for builders", "Home renovation support"]),
+      impacts: JSON.stringify([{ label: "Homes Built", value: "350+" }, { label: "Families Housed", value: "1,200+" }, { label: "Communities", value: "18" }, { label: "Volunteers Engaged", value: "500+" }]),
+      sortOrder: 2,
+    },
+    {
+      title: "Food Security",
+      slug: "food-security",
+      shortDescription: "Community kitchens, food banks, and nutritional programs that ensure no family goes hungry in our communities.",
+      longDescription: "Food security is a fundamental human right. Our Food Security program operates community kitchens, food banks, and nutritional education programs to ensure that every family has access to adequate, nutritious food.\n\nWe partner with local farmers and suppliers to source fresh, locally-grown produce. Our community gardens program teaches families how to grow their own food, creating sustainable food sources that reduce dependency on external aid.\n\nOur school feeding program ensures that children receive at least one nutritious meal per day, improving their health, concentration, and academic performance.",
+      image: "https://images.unsplash.com/photo-1509099836639-18ba1795216d?w=800&h=600&fit=crop",
+      icon: "Utensils",
+      color: "from-violet-500 to-purple-600",
+      emoji: "🍽️",
+      features: JSON.stringify(["Community kitchens", "School feeding program", "Community gardens", "Nutritional education", "Emergency food relief"]),
+      impacts: JSON.stringify([{ label: "Meals Served Monthly", value: "8,000+" }, { label: "Food Banks", value: "12" }, { label: "Community Gardens", value: "25" }, { label: "Families Fed", value: "3,000+" }]),
+      sortOrder: 3,
+    },
+    {
+      title: "Clean Water",
+      slug: "clean-water",
+      shortDescription: "Installing wells, water purification systems, and promoting water conservation for sustainable access.",
+      longDescription: "Access to clean water is essential for health, education, and economic development. Our Clean Water program installs wells and boreholes in communities where clean water is scarce, providing a lifeline to thousands of families.\n\nWe go beyond just drilling wells — we install water purification systems, build rainwater harvesting infrastructure, and train community members in water system maintenance to ensure long-term sustainability.\n\nOur water, sanitation, and hygiene (WASH) education programs teach communities about water-borne disease prevention, proper sanitation practices, and water conservation techniques.",
+      image: "https://images.unsplash.com/photo-1526958097901-5e6d742d3371?w=800&h=600&fit=crop",
+      icon: "Droplets",
+      color: "from-blue-500 to-cyan-600",
+      emoji: "💧",
+      features: JSON.stringify(["Well & borehole installation", "Water purification systems", "Rainwater harvesting", "WASH education", "Community maintenance training"]),
+      impacts: JSON.stringify([{ label: "Wells Installed", value: "75+" }, { label: "People with Access", value: "50,000+" }, { label: "Communities", value: "35" }, { label: "Water Purity Rate", value: "99.5%" }]),
+      sortOrder: 4,
+    },
+    {
+      title: "Skills Training",
+      slug: "skills-training",
+      shortDescription: "Vocational training and entrepreneurship programs that equip individuals with skills for self-sufficiency.",
+      longDescription: "Empowering individuals with marketable skills is key to breaking the cycle of poverty. Our Skills Training program offers vocational training in trades like carpentry, tailoring, welding, computing, and agriculture.\n\nWe provide entrepreneurship workshops, business mentoring, and micro-loan support to help graduates start their own businesses. Our training centers are equipped with modern tools and technology, and our instructors are experienced professionals.\n\nGraduates of our program have gone on to start successful businesses, gaining financial independence and becoming contributors to their communities' economic growth.",
+      image: "https://images.unsplash.com/photo-1542810634-71277d95dcbb?w=800&h=600&fit=crop",
+      icon: "Wrench",
+      color: "from-teal-500 to-emerald-600",
+      emoji: "🛠️",
+      features: JSON.stringify(["Vocational training courses", "Entrepreneurship workshops", "Micro-loan support", "Business mentoring", "Job placement assistance"]),
+      impacts: JSON.stringify([{ label: "Graduates", value: "1,800+" }, { label: "Businesses Started", value: "450+" }, { label: "Training Courses", value: "24" }, { label: "Employment Rate", value: "87%" }]),
+      sortOrder: 5,
+    },
+  ];
+
+  for (const prog of programsData) {
+    await prisma.program.create({ data: prog });
+  }
+  console.log(`✅ Created ${programsData.length} programs`);
+
   console.log("\n🎉 Database seeded successfully!");
   console.log(`   Admin login: admin@zhhf.org`);
 }

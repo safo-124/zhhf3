@@ -160,3 +160,21 @@ model HeroImage {
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
 }
+
+model Program {
+  id              Int      @id @default(autoincrement())
+  title           String
+  slug            String   @unique
+  shortDescription String
+  longDescription String
+  image           String?
+  icon            String   @default("Heart")
+  color           String   @default("from-emerald-500 to-teal-600")
+  emoji           String   @default("🌟")
+  features        String?  // JSON array of feature strings
+  impacts         String?  // JSON array of {label, value} objects
+  active          Boolean  @default(true)
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}

@@ -207,7 +207,7 @@ export default function Programs() {
                     </p>
 
                     <Link
-                      href={`/programs`}
+                      href={`/programs/${program.title.toLowerCase().replace(/\s+/g, '-')}`}
                       className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-600 hover:text-emerald-700 group/link"
                     >
                       Learn More

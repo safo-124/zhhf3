@@ -25,7 +25,9 @@ const navLinks = [
     children: [
       { name: "Education", href: "/programs/education", icon: BookOpen },
       { name: "Healthcare", href: "/programs/healthcare", icon: Heart },
-      { name: "Community", href: "/programs/community", icon: Users },
+      { name: "Housing", href: "/programs/housing", icon: Users },
+      { name: "Clean Water", href: "/programs/clean-water", icon: Users },
+      { name: "Skills Training", href: "/programs/skills-training", icon: Users },
     ],
   },
   { name: "Events", href: "/events" },
