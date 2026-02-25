@@ -86,7 +86,7 @@ export default function AboutPage() {
   const timeline: { year: string; title: string; description: string }[] = (() => {
     try { return JSON.parse(data.about_timeline); } catch { return []; }
   })();
-  const team: { name: string; role: string; avatar: string; color: string }[] = (() => {
+  const team: { name: string; role: string; avatar: string; color: string; image?: string }[] = (() => {
     try { return JSON.parse(data.about_team); } catch { return []; }
   })();
 
@@ -271,15 +271,31 @@ export default function AboutPage() {
               <StaggerItem key={person.name}>
                 <motion.div
                   whileHover={{ y: -5 }}
-                  className="group bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:border-emerald-200 transition-all text-center"
+                  className="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl hover:border-emerald-200 transition-all text-center"
                 >
-                  <div
-                    className={`mx-auto w-20 h-20 rounded-2xl ${person.color} flex items-center justify-center text-white text-2xl font-bold mb-4 group-hover:scale-110 transition-transform shadow-lg`}
-                  >
-                    {person.avatar}
+                  {person.image ? (
+                    <div className="relative w-full h-48 overflow-hidden">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={person.image}
+                        alt={person.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                    </div>
+                  ) : (
+                    <div className="pt-6 pb-2 flex justify-center">
+                      <div
+                        className={`w-24 h-24 rounded-2xl ${person.color} flex items-center justify-center text-white text-3xl font-bold group-hover:scale-110 transition-transform shadow-lg`}
+                      >
+                        {person.avatar}
+                      </div>
+                    </div>
+                  )}
+                  <div className="p-5">
+                    <h3 className="font-bold text-gray-900 text-lg">{person.name}</h3>
+                    <p className="text-sm text-gray-500 mt-1">{person.role}</p>
                   </div>
-                  <h3 className="font-bold text-gray-900">{person.name}</h3>
-                  <p className="text-sm text-gray-500 mt-1">{person.role}</p>
                 </motion.div>
               </StaggerItem>
             ))}

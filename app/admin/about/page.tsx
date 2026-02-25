@@ -37,6 +37,7 @@ interface TeamMember {
   role: string;
   avatar: string;
   color: string;
+  image?: string;
 }
 
 const TEAM_COLORS = [
@@ -155,7 +156,7 @@ export default function AdminAboutPage() {
 
   // Team helpers
   const addTeamMember = () => {
-    setTeam([...team, { name: "", role: "", avatar: "", color: TEAM_COLORS[team.length % TEAM_COLORS.length] }]);
+    setTeam([...team, { name: "", role: "", avatar: "", color: TEAM_COLORS[team.length % TEAM_COLORS.length], image: "" }]);
   };
   const updateTeamMember = (index: number, field: keyof TeamMember, value: string) => {
     const updated = [...team];
@@ -500,45 +501,74 @@ export default function AdminAboutPage() {
                         <Trash2 className="w-4 h-4" />
                       </button>
 
-                      <div className="flex items-start gap-4">
-                        <div
-                          className={`w-14 h-14 rounded-xl ${member.color} flex items-center justify-center text-white text-lg font-bold flex-shrink-0`}
-                        >
-                          {member.avatar || "??"}
+                      <div className="space-y-4">
+                        {/* Photo + Name row */}
+                        <div className="flex items-start gap-4">
+                          <div className="flex-shrink-0">
+                            {member.image ? (
+                              <div className="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-gray-200 group/img">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={member.image} alt={member.name || "Member"} className="w-full h-full object-cover" />
+                                <button
+                                  onClick={() => updateTeamMember(index, "image", "")}
+                                  className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity"
+                                >
+                                  <X className="w-5 h-5 text-white" />
+                                </button>
+                              </div>
+                            ) : (
+                              <div
+                                className={`w-20 h-20 rounded-xl ${member.color} flex items-center justify-center text-white text-xl font-bold`}
+                              >
+                                {member.avatar || "??"}
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 space-y-2">
+                            <div>
+                              <label className="text-xs font-medium text-gray-500">Full Name</label>
+                              <input
+                                value={member.name}
+                                onChange={(e) => updateTeamMember(index, "name", e.target.value)}
+                                placeholder="John Doe"
+                                className={inputClass}
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs font-medium text-gray-500">Role</label>
+                              <input
+                                value={member.role}
+                                onChange={(e) => updateTeamMember(index, "role", e.target.value)}
+                                placeholder="Program Director"
+                                className={inputClass}
+                              />
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex-1 space-y-2">
-                          <div>
-                            <label className="text-xs font-medium text-gray-500">Full Name</label>
-                            <input
-                              value={member.name}
-                              onChange={(e) => updateTeamMember(index, "name", e.target.value)}
-                              placeholder="John Doe"
-                              className={inputClass}
-                            />
-                          </div>
-                          <div>
-                            <label className="text-xs font-medium text-gray-500">Role</label>
-                            <input
-                              value={member.role}
-                              onChange={(e) => updateTeamMember(index, "role", e.target.value)}
-                              placeholder="Program Director"
-                              className={inputClass}
-                            />
-                          </div>
-                          <div>
-                            <label className="text-xs font-medium text-gray-500">Badge Color</label>
-                            <select
-                              value={member.color}
-                              onChange={(e) => updateTeamMember(index, "color", e.target.value)}
-                              className={inputClass}
-                            >
-                              {TEAM_COLORS.map((c) => (
-                                <option key={c} value={c}>
-                                  {c.replace("bg-", "").replace("-500", "")}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
+
+                        {/* Image Upload */}
+                        <ImageUpload
+                          label="Member Photo"
+                          value={member.image || ""}
+                          onChange={(url) => updateTeamMember(index, "image", url)}
+                          accent="blue"
+                          hint="Upload a photo or paste a URL for this team member"
+                        />
+
+                        {/* Badge Color */}
+                        <div>
+                          <label className="text-xs font-medium text-gray-500">Fallback Badge Color (used when no photo)</label>
+                          <select
+                            value={member.color}
+                            onChange={(e) => updateTeamMember(index, "color", e.target.value)}
+                            className={inputClass}
+                          >
+                            {TEAM_COLORS.map((c) => (
+                              <option key={c} value={c}>
+                                {c.replace("bg-", "").replace("-500", "")}
+                              </option>
+                            ))}
+                          </select>
                         </div>
                       </div>
                     </div>
