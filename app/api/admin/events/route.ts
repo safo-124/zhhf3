@@ -17,7 +17,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { title, description, date, time, location, capacity, category, featured } = body;
+    const { title, description, date, endDate, time, location, capacity, category, featured, image } = body;
 
     if (!title || !date || !location) {
       return NextResponse.json({ error: "Title, date, and location are required" }, { status: 400 });
@@ -28,11 +28,13 @@ export async function POST(request: NextRequest) {
         title,
         description: description || "",
         date: new Date(date),
+        endDate: endDate ? new Date(endDate) : null,
         time: time || null,
         location,
         capacity: capacity ? parseInt(capacity) : null,
         category: category || "Community",
         featured: featured || false,
+        image: image || null,
       },
     });
 

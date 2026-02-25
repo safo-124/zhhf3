@@ -5,7 +5,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   try {
     const { id } = await params;
     const body = await request.json();
-    const { title, description, date, time, location, capacity, category, featured } = body;
+    const { title, description, date, endDate, time, location, capacity, category, featured, image } = body;
 
     const event = await prisma.event.update({
       where: { id: parseInt(id) },
@@ -13,11 +13,13 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         ...(title !== undefined && { title }),
         ...(description !== undefined && { description }),
         ...(date !== undefined && { date: new Date(date) }),
+        ...(endDate !== undefined && { endDate: endDate ? new Date(endDate) : null }),
         ...(time !== undefined && { time }),
         ...(location !== undefined && { location }),
-        ...(capacity !== undefined && { capacity: parseInt(capacity) }),
+        ...(capacity !== undefined && { capacity: capacity ? parseInt(capacity) : null }),
         ...(category !== undefined && { category }),
         ...(featured !== undefined && { featured }),
+        ...(image !== undefined && { image: image || null }),
       },
     });
 
