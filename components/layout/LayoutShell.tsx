@@ -7,8 +7,9 @@ import Footer from "@/components/layout/Footer";
 export default function LayoutShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith("/admin");
+  const isAuth = pathname.startsWith("/auth");
 
-  if (isAdmin) {
+  if (isAdmin || isAuth) {
     return <>{children}</>;
   }
 
