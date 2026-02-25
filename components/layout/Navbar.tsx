@@ -39,11 +39,21 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/homepage")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.settings?.logo) setLogoUrl(d.settings.logo);
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -75,9 +85,18 @@ export default function Navbar() {
                 whileHover={{ rotate: 15, scale: 1.1 }}
                 className="relative"
               >
-                <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/30 group-hover:shadow-emerald-500/50 transition-shadow">
-                  <HandHeart className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                </div>
+                {logoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={logoUrl}
+                    alt="Logo"
+                    className="w-10 h-10 md:w-12 md:h-12 rounded-xl object-contain shadow-lg"
+                  />
+                ) : (
+                  <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/30 group-hover:shadow-emerald-500/50 transition-shadow">
+                    <HandHeart className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                  </div>
+                )}
               </motion.div>
               <div className="flex flex-col">
                 <span
@@ -228,9 +247,14 @@ export default function Navbar() {
                 {/* Mobile Header */}
                 <div className="flex items-center justify-between mb-8">
                   <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl flex items-center justify-center">
-                      <HandHeart className="w-5 h-5 text-white" />
-                    </div>
+                    {logoUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={logoUrl} alt="Logo" className="w-10 h-10 rounded-xl object-contain" />
+                    ) : (
+                      <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl flex items-center justify-center">
+                        <HandHeart className="w-5 h-5 text-white" />
+                      </div>
+                    )}
                     <span className="font-bold text-emerald-800">ZHHF</span>
                   </div>
                   <button

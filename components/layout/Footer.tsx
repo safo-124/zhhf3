@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -45,6 +46,17 @@ const socialLinks = [
 ];
 
 export default function Footer() {
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/homepage")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.settings?.logo) setLogoUrl(d.settings.logo);
+      })
+      .catch(() => {});
+  }, []);
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -95,9 +107,14 @@ export default function Footer() {
           {/* Brand Column */}
           <div className="lg:col-span-2">
             <Link href="/" className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
-                <HandHeart className="w-6 h-6 text-white" />
-              </div>
+              {logoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={logoUrl} alt="Logo" className="w-12 h-12 rounded-xl object-contain" />
+              ) : (
+                <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <HandHeart className="w-6 h-6 text-white" />
+                </div>
+              )}
               <div>
                 <h4 className="text-lg font-bold text-white">
                   Zion Helping Hand

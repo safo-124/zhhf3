@@ -20,6 +20,7 @@ import {
   ExternalLink,
   Palette,
   Layout,
+  Stamp,
 } from "lucide-react";
 import ImageUpload from "@/components/admin/ImageUpload";
 
@@ -65,7 +66,7 @@ export default function AdminHomepagePage() {
   const [newImageUrl, setNewImageUrl] = useState("");
   const [newImageAlt, setNewImageAlt] = useState("");
   const [addingImage, setAddingImage] = useState(false);
-  const [activeTab, setActiveTab] = useState<"hero" | "images" | "sections">("hero");
+  const [activeTab, setActiveTab] = useState<"branding" | "hero" | "images" | "sections">("branding");
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -160,6 +161,7 @@ export default function AdminHomepagePage() {
   };
 
   const tabs = [
+    { id: "branding" as const, label: "Branding", icon: Stamp },
     { id: "hero" as const, label: "Hero Content", icon: Type },
     { id: "images" as const, label: "Hero Images", icon: ImageIcon },
     { id: "sections" as const, label: "Section Settings", icon: Layout },
@@ -241,6 +243,78 @@ export default function AdminHomepagePage() {
         </div>
 
         <div className="p-6">
+          {/* Branding Tab */}
+          {activeTab === "branding" && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Logo Upload */}
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-base font-semibold text-gray-900 mb-1">Site Logo</h3>
+                    <p className="text-sm text-gray-500">Upload your organization&apos;s logo. It will appear in the navbar and footer across all pages.</p>
+                  </div>
+                  <ImageUpload
+                    label="Logo Image"
+                    value={settings.logo || ""}
+                    onChange={(url) => updateSetting("logo", url)}
+                    accent="emerald"
+                    hint="Recommended: square or wide format, PNG with transparent background. Max 512×512px."
+                  />
+                  {settings.logo && (
+                    <button
+                      onClick={() => updateSetting("logo", "")}
+                      className="text-sm text-red-500 hover:text-red-700 font-medium transition-colors"
+                    >
+                      Remove logo (use default icon)
+                    </button>
+                  )}
+                </div>
+
+                {/* Preview */}
+                <div className="space-y-4">
+                  <h3 className="text-base font-semibold text-gray-900">Preview</h3>
+                  {/* Light navbar preview */}
+                  <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+                    <div className="flex items-center gap-2">
+                      {settings.logo ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={settings.logo} alt="Logo" className="w-10 h-10 rounded-xl object-contain" />
+                      ) : (
+                        <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl flex items-center justify-center">
+                          <span className="text-white text-lg">🤝</span>
+                        </div>
+                      )}
+                      <div>
+                        <p className="text-sm font-bold text-emerald-800 leading-tight">Zion Helping Hand</p>
+                        <p className="text-[10px] text-emerald-600 uppercase tracking-wider">Foundation</p>
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-gray-400 mt-2">Light mode (scrolled navbar)</p>
+                  </div>
+
+                  {/* Dark navbar preview */}
+                  <div className="bg-emerald-900 rounded-xl border border-emerald-700 p-4">
+                    <div className="flex items-center gap-2">
+                      {settings.logo ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={settings.logo} alt="Logo" className="w-10 h-10 rounded-xl object-contain" />
+                      ) : (
+                        <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl flex items-center justify-center">
+                          <span className="text-white text-lg">🤝</span>
+                        </div>
+                      )}
+                      <div>
+                        <p className="text-sm font-bold text-white leading-tight">Zion Helping Hand</p>
+                        <p className="text-[10px] text-emerald-200 uppercase tracking-wider">Foundation</p>
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-emerald-400 mt-2">Dark mode (hero / footer)</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
           {/* Hero Content Tab */}
           {activeTab === "hero" && (
             <motion.div
