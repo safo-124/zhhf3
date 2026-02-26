@@ -43,7 +43,7 @@ export default function PortalLayout({
     fetch("/api/auth/session")
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
-        if (d?.session) setSession(d.session);
+        if (d?.user) setSession(d.user);
       })
       .catch(() => {});
   }, []);
