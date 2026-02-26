@@ -169,7 +169,7 @@ export default function PortalDashboard() {
                 <Heart className="w-10 h-10 mx-auto mb-2 opacity-50" />
                 <p className="text-sm">No donations yet</p>
                 <Link
-                  href="/donate"
+                  href="/portal/donate"
                   className="inline-block mt-3 text-sm text-emerald-600 font-semibold hover:underline"
                 >
                   Make your first donation
@@ -267,7 +267,7 @@ export default function PortalDashboard() {
         className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4"
       >
         {[
-          { label: "Make a Donation", href: "/donate", icon: Heart, color: "from-emerald-500 to-teal-500" },
+          { label: "Make a Donation", href: "/portal/donate", icon: Heart, color: "from-emerald-500 to-teal-500" },
           { label: "Browse Events", href: "/events", icon: Calendar, color: "from-blue-500 to-indigo-500" },
           { label: "Update Profile", href: "/portal/profile", icon: User, color: "from-violet-500 to-purple-500" },
           { label: "View Impact", href: "/portal/donations", icon: TrendingUp, color: "from-amber-500 to-orange-500" },

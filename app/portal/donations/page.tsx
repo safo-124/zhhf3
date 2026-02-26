@@ -86,7 +86,7 @@ export default function DonationsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <h1 className="text-2xl font-bold text-gray-900">My Donations</h1>
         <Link
-          href="/donate"
+          href="/portal/donate"
           className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 transition-colors"
         >
           <Heart className="w-4 h-4" />
@@ -152,7 +152,7 @@ export default function DonationsPage() {
             </p>
             {donations.length === 0 && (
               <Link
-                href="/donate"
+                href="/portal/donate"
                 className="inline-block mt-3 text-sm text-emerald-600 font-semibold hover:underline"
               >
                 Make your first donation
