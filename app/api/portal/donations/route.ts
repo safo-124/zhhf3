@@ -81,7 +81,7 @@ export async function GET() {
         id: d.id,
         date: d.createdAt,
         amount: d.amount,
-        currency: d.currency,
+        currency: "GHS",
         campaign: d.campaign?.title || "General Donation",
         paymentMethod: d.paymentMethod || "card",
         status: d.status,
@@ -91,7 +91,7 @@ export async function GET() {
         totalDonated,
         totalTransactions: donations.length,
         monthlyAmount: monthlyTotal,
-        currency: donations[0]?.currency || "GHS",
+        currency: "GHS",
       },
     });
   } catch (error) {

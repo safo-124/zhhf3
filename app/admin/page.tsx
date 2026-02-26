@@ -90,9 +90,9 @@ const itemVariants = {
 };
 
 function formatCurrency(n: number) {
-  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}K`;
-  return `$${n.toLocaleString()}`;
+  if (n >= 1_000_000) return `GH₵${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `GH₵${(n / 1_000).toFixed(1)}K`;
+  return `GH₵${n.toLocaleString()}`;
 }
 
 function timeAgo(date: string) {
@@ -115,7 +115,7 @@ function CustomTooltip({ active, payload, label }: any) {
       {payload.map((p: { name: string; value: number; color: string }, i: number) => (
         <p key={i} className="text-gray-600 flex items-center gap-2">
           <span className="w-2.5 h-2.5 rounded-full" style={{ background: p.color }} />
-          {p.name}: <span className="font-medium">${p.value.toLocaleString()}</span>
+          {p.name}: <span className="font-medium">GH₵{p.value.toLocaleString()}</span>
         </p>
       ))}
     </div>
@@ -214,7 +214,7 @@ export default function AdminDashboard() {
       gradient: "from-rose-500 to-pink-600",
       bg: "bg-rose-50",
       text: "text-rose-700",
-      href: "/admin/members",
+      href: "/admin/volunteers",
     },
     {
       label: "Blog Posts",
@@ -331,7 +331,7 @@ export default function AdminDashboard() {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis dataKey="month" tick={{ fill: "#9ca3af", fontSize: 12 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: "#9ca3af", fontSize: 12 }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${v >= 1000 ? `${(v / 1000).toFixed(0)}K` : v}`} />
+                <YAxis tick={{ fill: "#9ca3af", fontSize: 12 }} axisLine={false} tickLine={false} tickFormatter={(v) => `GH₵${v >= 1000 ? `${(v / 1000).toFixed(0)}K` : v}`} />
                 <Tooltip content={<CustomTooltip />} />
                 <Area
                   type="monotone"
@@ -382,7 +382,7 @@ export default function AdminDashboard() {
                 </Pie>
                 <Tooltip
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  formatter={((value: any) => [`$${Number(value || 0).toLocaleString()}`, ""]) as any}
+                  formatter={((value: any) => [`GH₵${Number(value || 0).toLocaleString()}`, ""]) as any}
                   contentStyle={{
                     borderRadius: "12px",
                     border: "1px solid #e5e7eb",
@@ -399,7 +399,7 @@ export default function AdminDashboard() {
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: PIE_COLORS[i] }} />
                   <span className="text-sm text-gray-600">{item.name}</span>
                 </div>
-                <p className="text-lg font-bold text-gray-900">${item.value.toLocaleString()}</p>
+                <p className="text-lg font-bold text-gray-900">GH₵{item.value.toLocaleString()}</p>
                 <p className="text-xs text-gray-400">{item.count} donations</p>
               </div>
             ))}
@@ -448,8 +448,8 @@ export default function AdminDashboard() {
                     />
                   </div>
                   <div className="flex justify-between mt-1.5">
-                    <span className="text-xs text-gray-400">Raised: ${campaign.raised.toLocaleString()}</span>
-                    <span className="text-xs text-gray-400">Goal: ${campaign.goal.toLocaleString()}</span>
+                    <span className="text-xs text-gray-400">Raised: GH₵{campaign.raised.toLocaleString()}</span>
+                    <span className="text-xs text-gray-400">Goal: GH₵{campaign.goal.toLocaleString()}</span>
                   </div>
                 </div>
               );
@@ -487,11 +487,11 @@ export default function AdminDashboard() {
                   tick={{ fill: "#9ca3af", fontSize: 12 }}
                   axisLine={false}
                   tickLine={false}
-                  tickFormatter={(v) => `$${v >= 1000 ? `${(v / 1000).toFixed(0)}K` : v}`}
+                  tickFormatter={(v) => `GH₵${v >= 1000 ? `${(v / 1000).toFixed(0)}K` : v}`}
                 />
                 <Tooltip
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  formatter={((value: any, name: any) => [`$${Number(value || 0).toLocaleString()}`, name]) as any}
+                  formatter={((value: any, name: any) => [`GH₵${Number(value || 0).toLocaleString()}`, name]) as any}
                   contentStyle={{
                     borderRadius: "12px",
                     border: "1px solid #e5e7eb",
@@ -518,7 +518,7 @@ export default function AdminDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-emerald-100 text-sm font-medium">Average Donation</p>
-              <p className="text-3xl font-bold mt-1">${avgDonation.toFixed(0)}</p>
+              <p className="text-3xl font-bold mt-1">GH₵{avgDonation.toFixed(0)}</p>
               <p className="text-emerald-200 text-xs mt-1">per transaction</p>
             </div>
             <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center backdrop-blur-sm">
@@ -663,7 +663,7 @@ export default function AdminDashboard() {
                 </div>
                 <div className="text-right">
                   <span className="text-sm font-bold text-emerald-600">
-                    +${donation.amount.toLocaleString()}
+                    +GH₵{donation.amount.toLocaleString()}
                   </span>
                   <p className="text-[11px] text-gray-400 mt-0.5 flex items-center gap-1 justify-end">
                     <Clock className="w-3 h-3" />

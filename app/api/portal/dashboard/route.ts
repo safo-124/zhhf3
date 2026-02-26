@@ -55,7 +55,7 @@ export async function GET() {
       id: d.id,
       date: d.createdAt,
       amount: d.amount,
-      currency: d.currency,
+      currency: "GHS",
       campaign: d.campaign?.title || "General Donation",
       status: d.status,
     }));

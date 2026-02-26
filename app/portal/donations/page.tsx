@@ -76,7 +76,7 @@ export default function DonationsPage() {
     );
   }
 
-  const cur = summary?.currency === "GHS" ? "GH₵" : "$";
+  const cur = "GH₵";
 
   return (
     <motion.div
