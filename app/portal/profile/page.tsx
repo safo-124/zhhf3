@@ -92,6 +92,9 @@ export default function ProfilePage() {
       setProfile(data.user);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
+
+      // Tell the layout sidebar to refresh the displayed name
+      window.dispatchEvent(new Event("profile-updated"));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save profile");
     } finally {

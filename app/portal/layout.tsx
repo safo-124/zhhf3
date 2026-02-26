@@ -39,13 +39,24 @@ export default function PortalLayout({
     role: string;
   } | null>(null);
 
-  useEffect(() => {
+  const fetchSession = () => {
     fetch("/api/auth/session")
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (d?.user) setSession(d.user);
       })
       .catch(() => {});
+  };
+
+  useEffect(() => {
+    fetchSession();
+  }, []);
+
+  // Re-fetch session when profile is updated so sidebar name stays in sync
+  useEffect(() => {
+    const handler = () => fetchSession();
+    window.addEventListener("profile-updated", handler);
+    return () => window.removeEventListener("profile-updated", handler);
   }, []);
 
   // Close mobile menu on navigation

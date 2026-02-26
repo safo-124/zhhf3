@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/auth";
+import { getSession, createSession } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
 export async function GET() {
@@ -67,6 +67,14 @@ export async function PUT(request: NextRequest) {
         role: true,
         createdAt: true,
       },
+    });
+
+    // Re-issue JWT with updated name so sidebar reflects the change
+    await createSession({
+      userId: session.userId,
+      email: session.email,
+      role: session.role,
+      name: updatedUser.name,
     });
 
     return NextResponse.json({ user: updatedUser });
